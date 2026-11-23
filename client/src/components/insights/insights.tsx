@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { Trash2Icon } from "lucide-react";
 import { cx } from "../../lib/cx.ts";
+import { getBrandName } from "../../lib/consts.ts";
 import { deleteInsight } from "../../services/insight.api.ts";
 import styles from "./insights.module.css";
 import type { Insight } from "@suittracker/lib/dtos";
@@ -52,7 +53,7 @@ export const Insights = ({ insights, className, onDeleted }: InsightsProps) => {
                 aria-labelledby={`${idPrefix}-insight-${id}`}
               >
                 <div className={styles["insight-meta"]}>
-                  <span>{brandId}</span>
+                  <span>{getBrandName(brandId)}</span>
                   <div className={styles["insight-meta-details"]}>
                     <span>{date.toString()}</span>
                     <button

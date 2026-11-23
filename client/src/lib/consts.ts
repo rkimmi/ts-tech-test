@@ -6,3 +6,6 @@ export const BRANDS = [
   { id: 5, name: "Brand 5" },
   { id: 6, name: "Brand 6" },
 ];
+
+export const getBrandName = (brandId: number): string =>
+  BRANDS.find(({ id }) => id === brandId)?.name ?? `Unknown brand (${brandId})`;

@@ -37,6 +37,23 @@ describe("insights", () => {
     expect(getByText(TEST_INSIGHTS[0].text)).toBeTruthy();
   });
 
+  it("shows the brand name for each insight", () => {
+    render(<Insights insights={TEST_INSIGHTS} />);
+    const article = screen.getByRole("article", {
+      name: TEST_INSIGHTS[1].text,
+    });
+    expect(within(article).getByText("Brand 2")).toBeTruthy();
+  });
+
+  it("falls back for an unknown brand id", () => {
+    render(
+      <Insights
+        insights={[{ id: 3, brandId: 99, date: new Date(), text: "Orphan" }]}
+      />,
+    );
+    expect(screen.getByText("Unknown brand (99)")).toBeTruthy();
+  });
+
   it("deletes an insight and reports its id", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(null, { status: 204 }),
