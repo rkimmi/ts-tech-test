@@ -3,7 +3,7 @@ import { Header } from "../components/header/header.tsx";
 import { Insights } from "../components/insights/insights.tsx";
 import { fetchWithRetry } from "../lib/fetch-with-retry.ts";
 import styles from "./app.module.css";
-import type { Insight } from "../schemas/insight.ts";
+import type { Insight } from "@suittracker/lib/dtos";
 
 export const App = () => {
   const [insights, setInsights] = useState<Insight[]>([]);
