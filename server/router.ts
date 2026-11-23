@@ -1,5 +1,6 @@
 import * as oak from "@oak/oak";
 import { CreateInsightRequest } from "@suittracker/lib/dtos";
+import { InsightId } from "@suittracker/lib/utils";
 import listInsights from "./operations/list-insights.ts";
 import lookupInsight from "./operations/lookup-insight.ts";
 import createInsight from "./operations/create-insight.ts";
@@ -21,11 +22,17 @@ export const createRouter = ({ db }: HasDBClient): oak.Router => {
   });
 
   router.get("/insights/:id", (ctx) => {
-    const params = ctx.params as Record<string, any>;
-    const result = lookupInsight({ db, id: params.id });
+    const parsedId = InsightId.safeParse(ctx.params.id);
+    if (!parsedId.success) {
+      ctx.response.status = 400;
+      ctx.response.body = { error: `Invalid insight id: ${ctx.params.id}` };
+      return;
+    }
+    const id = parsedId.data;
+    const result = lookupInsight({ db, id });
     if (!result) {
       ctx.response.status = 404;
-      ctx.response.body = { error: `Insight ${params.id} not found` };
+      ctx.response.body = { error: `Insight ${id} not found` };
       return;
     }
     ctx.response.body = toInsightDto(result);
@@ -51,7 +58,7 @@ export const createRouter = ({ db }: HasDBClient): oak.Router => {
     ctx.response.body = toInsightDto(result);
   });
 
-  router.get("/insights/delete", (ctx) => {
+  router.get("/insights/delete", (_ctx) => {
     // TODO
   });
 
