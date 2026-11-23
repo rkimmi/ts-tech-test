@@ -1,9 +1,16 @@
 import { Database } from "@db/sqlite";
 import * as insightsTable from "$tables/insights.ts";
 import type { HasDBClient } from "./shared.ts";
+import type { Logger } from "./middleware.ts";
 import { afterAll, beforeAll } from "@std/testing/bdd";
 
+export const logger: Logger = {
+  info: () => {},
+  error: () => {},
+};
+
 type Fixture = HasDBClient & {
+  logger: Logger;
   insights: {
     insert(insights: insightsTable.Insert[]): void;
     selectAll(): insightsTable.Row[];
@@ -21,6 +28,7 @@ export const withDB = <R>(fn: (fixture: Fixture) => R): R => {
 
   return fn({
     db,
+    logger,
     insights: {
       selectAll() {
         return db.sql<insightsTable.Row>`SELECT * FROM insights`;

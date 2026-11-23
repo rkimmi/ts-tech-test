@@ -5,8 +5,6 @@ import type * as insightsTable from "$tables/insights.ts";
 type Input = HasDBClient & Pick<Insight, "brand" | "text">;
 
 export default (input: Input): Insight => {
-  console.log(`Creating insight for brand=${input.brand}`);
-
   const createdAt = new Date().toISOString();
 
   const [row] = input.db.sql<insightsTable.Row>`
@@ -15,7 +13,5 @@ export default (input: Input): Insight => {
     RETURNING *
   `;
 
-  const result = { ...row, createdAt: new Date(row.createdAt) };
-  console.log("Insight created:", result);
-  return result;
+  return { ...row, createdAt: new Date(row.createdAt) };
 };
