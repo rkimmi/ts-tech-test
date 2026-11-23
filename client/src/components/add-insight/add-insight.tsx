@@ -1,7 +1,11 @@
 import { type FormEvent, useState } from "react";
-import type { z } from "zod";
-import { CreateInsightRequest, Insight } from "@suittracker/lib/dtos";
+import {
+  CreateInsightRequest,
+  type CreateInsightValidationErrors,
+  type Insight,
+} from "@suittracker/lib/dtos";
 import { BRANDS } from "../../lib/consts.ts";
+import { createInsight } from "../../services/insight.api.ts";
 import { Button } from "../button/button.tsx";
 import { Modal, type ModalProps } from "../modal/modal.tsx";
 import styles from "./add-insight.module.css";
@@ -10,38 +14,17 @@ type AddInsightProps = ModalProps & {
   onCreated?(insight: Insight): void;
 };
 
-type ValidationErrors = z.inferFlattenedErrors<typeof CreateInsightRequest>;
-
-type CreateResult =
-  | { ok: true; insight: Insight }
-  | { ok: false; errors: ValidationErrors };
-
-const NO_ERRORS: ValidationErrors = { formErrors: [], fieldErrors: {} };
-
-const createInsight = async (
-  request: CreateInsightRequest,
-): Promise<CreateResult> => {
-  const res = await fetch("/api/insights", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(request),
-  });
-
-  if (res.status === 400) {
-    const body: { error: ValidationErrors } = await res.json();
-    return { ok: false, errors: body.error };
-  }
-  if (!res.ok) {
-    throw new Error(`Request failed: ${res.status} ${res.statusText}`);
-  }
-
-  return { ok: true, insight: Insight.parse(await res.json()) };
+const NO_ERRORS: CreateInsightValidationErrors = {
+  formErrors: [],
+  fieldErrors: {},
 };
 
 export const AddInsight = ({ onCreated, ...props }: AddInsightProps) => {
   const [brandId, setBrandId] = useState(BRANDS[0].id);
   const [text, setText] = useState("");
-  const [errors, setErrors] = useState<ValidationErrors>(NO_ERRORS);
+  const [errors, setErrors] = useState<CreateInsightValidationErrors>(
+    NO_ERRORS,
+  );
   const [submitting, setSubmitting] = useState(false);
 
   const addInsight = async (e: FormEvent<HTMLFormElement>) => {

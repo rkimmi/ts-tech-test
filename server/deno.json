@@ -15,6 +15,7 @@
     "zod": "npm:zod@^3.23.8",
     "$models/": "./models/",
     "$tables/": "./tables/",
-    "$mappers/": "./mappers/"
+    "$mappers/": "./mappers/",
+    "$operations/": "./operations/"
   }
 }

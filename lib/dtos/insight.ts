@@ -22,3 +22,10 @@ export const CreateInsightRequest: z.ZodObject<{
 });
 
 export type CreateInsightRequest = z.infer<typeof CreateInsightRequest>;
+export type CreateInsightResponse = Insight;
+export type CreateInsightValidationErrors = z.inferFlattenedErrors<
+  typeof CreateInsightRequest
+>;
+export type CreateInsightErrorResponse = {
+  error: CreateInsightValidationErrors;
+};

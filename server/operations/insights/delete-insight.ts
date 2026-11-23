@@ -1,4 +1,4 @@
-import type { HasDBClient } from "../shared.ts";
+import type { HasDBClient } from "../../shared.ts";
 
 type Input = HasDBClient & {
   id: number;
@@ -13,6 +13,10 @@ export default (input: Input): boolean => {
   `;
 
   const deleted = rows.length > 0;
-  console.log(deleted ? `Insight ${input.id} deleted` : `Requested insight ${input.id} to delete not found`);
+  console.log(
+    deleted
+      ? `Insight ${input.id} deleted`
+      : `Requested insight ${input.id} to delete not found`,
+  );
   return deleted;
 };

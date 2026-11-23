@@ -1,14 +1,8 @@
 import * as oak from "@oak/oak";
-import { CreateInsightRequest } from "@suittracker/lib/dtos";
-import { InsightId } from "@suittracker/lib/utils";
-import listInsights from "./operations/list-insights.ts";
-import lookupInsight from "./operations/lookup-insight.ts";
-import createInsight from "./operations/create-insight.ts";
-import deleteInsight from "./operations/delete-insight.ts";
-import { toInsightDto } from "$mappers/insight.ts";
+import { createInsightsRouter } from "./routes/insights.ts";
 import type { HasDBClient } from "./shared.ts";
 
-export const createRouter = ({ db }: HasDBClient): oak.Router => {
+export const createRouter = (deps: HasDBClient): oak.Router => {
   const router = new oak.Router();
 
   router.get("/_health", (ctx) => {
@@ -16,64 +10,8 @@ export const createRouter = ({ db }: HasDBClient): oak.Router => {
     ctx.response.status = 200;
   });
 
-  router.get("/insights", (ctx) => {
-    const result = listInsights({ db });
-    ctx.response.body = result.map(toInsightDto);
-    ctx.response.status = 200;
-  });
-
-  router.get("/insights/:id", (ctx) => {
-    const parsedId = InsightId.safeParse(ctx.params.id);
-    if (!parsedId.success) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: `Invalid insight id: ${ctx.params.id}` };
-      return;
-    }
-    const id = parsedId.data;
-    const result = lookupInsight({ db, id });
-    if (!result) {
-      ctx.response.status = 404;
-      ctx.response.body = { error: `Insight ${id} not found` };
-      return;
-    }
-    ctx.response.body = toInsightDto(result);
-    ctx.response.status = 200;
-  });
-
-  router.post("/insights", async (ctx) => {
-    const body = await ctx.request.body.json().catch(() => undefined);
-    const parsed = CreateInsightRequest.safeParse(body);
-
-    if (!parsed.success) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: parsed.error.flatten() };
-      return;
-    }
-
-    const result = createInsight({
-      db,
-      brand: parsed.data.brandId,
-      text: parsed.data.text,
-    });
-    ctx.response.status = 201;
-    ctx.response.body = toInsightDto(result);
-  });
-
-  router.delete("/insights/:id", (ctx) => {
-    const parsedId = InsightId.safeParse(ctx.params.id);
-    if (!parsedId.success) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: `Invalid insight id: ${ctx.params.id}` };
-      return;
-    }
-    const id = parsedId.data;
-    if (!deleteInsight({ db, id })) {
-      ctx.response.status = 404;
-      ctx.response.body = { error: `Insight ${id} not found` };
-      return;
-    }
-    ctx.response.status = 204;
-  });
+  const insightsRouter = createInsightsRouter(deps);
+  router.use(insightsRouter.routes(), insightsRouter.allowedMethods());
 
   return router;
 };

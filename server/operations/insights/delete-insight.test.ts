@@ -1,6 +1,6 @@
 import { beforeAll, describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
-import { withDB } from "../testing.ts";
+import { withDB } from "../../testing.ts";
 import deleteInsight from "./delete-insight.ts";
 
 describe("deleting an insight", () => {

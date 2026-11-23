@@ -1,7 +1,7 @@
 import { expect } from "@std/expect";
 import { beforeAll, describe, it } from "@std/testing/bdd";
 import type { Insight } from "$models/insight.ts";
-import { withDB } from "../testing.ts";
+import { withDB } from "../../testing.ts";
 import listInsights from "./list-insights.ts";
 
 describe("listing insights in the database", () => {

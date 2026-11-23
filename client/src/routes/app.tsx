@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "../components/header/header.tsx";
 import { Insights } from "../components/insights/insights.tsx";
-import { fetchWithRetry } from "../lib/fetch-with-retry.ts";
+import { listInsights } from "../services/insight.api.ts";
 import styles from "./app.module.css";
 import type { Insight } from "@suittracker/lib/dtos";
 
@@ -12,8 +12,7 @@ export const App = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetchWithRetry("/api/insights", { signal: controller.signal })
-      .then((res) => res.json())
+    listInsights({ signal: controller.signal })
       .then(setInsights)
       .catch((err) => {
         if (controller.signal.aborted) return;

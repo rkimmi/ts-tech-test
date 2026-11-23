@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { Trash2Icon } from "lucide-react";
 import { cx } from "../../lib/cx.ts";
+import { deleteInsight } from "../../services/insight.api.ts";
 import styles from "./insights.module.css";
 import type { Insight } from "@suittracker/lib/dtos";
 
@@ -8,13 +9,6 @@ type InsightsProps = {
   insights: Insight[];
   className?: string;
   onDeleted?(id: Insight["id"]): void;
-};
-
-const deleteInsight = async (id: Insight["id"]): Promise<void> => {
-  const res = await fetch(`/api/insights/${id}`, { method: "DELETE" });
-  if (!res.ok && res.status !== 404) { // 404: already removed insight
-    throw new Error(`Request failed: ${res.status} ${res.statusText}`);
-  }
 };
 
 export const Insights = ({ insights, className, onDeleted }: InsightsProps) => {
@@ -67,8 +61,7 @@ export const Insights = ({ insights, className, onDeleted }: InsightsProps) => {
                       aria-label="Delete insight"
                       title="Delete insight"
                       disabled={deleting.has(id)}
-                      onClick={() =>
-                        handleDelete(id)}
+                      onClick={() => handleDelete(id)}
                     >
                       <Trash2Icon className={styles["insight-delete"]} />
                     </button>
