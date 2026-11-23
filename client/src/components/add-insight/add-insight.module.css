@@ -29,3 +29,8 @@
 .submit {
   align-self: flex-end;
 }
+
+.error {
+  font: var(--text-sm);
+  color: var(--color-red-700);
+}

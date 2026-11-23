@@ -13,3 +13,12 @@ export const Insight: z.ZodObject<{
 });
 
 export type Insight = z.infer<typeof Insight>;
+
+export const CreateInsightRequest: z.ZodObject<{
+  brandId: z.ZodNumber;
+  text: z.ZodString;
+}> = Insight.pick({ brandId: true }).extend({
+  text: z.string().trim().min(1),
+});
+
+export type CreateInsightRequest = z.infer<typeof CreateInsightRequest>;
