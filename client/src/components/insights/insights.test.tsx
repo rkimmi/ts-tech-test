@@ -1,5 +1,12 @@
-import { describe, expect, it } from "vitest";
-import { render } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { Insights } from "./insights.tsx";
 import type { Insight } from "@suittracker/lib/dtos";
 
@@ -13,9 +20,65 @@ const TEST_INSIGHTS: Insight[] = [
   { id: 2, brandId: 2, date: new Date(), text: "Another test insight" },
 ];
 
+const getDeleteButton = (insight: Insight) =>
+  within(screen.getByRole("article", { name: insight.text })).getByRole(
+    "button",
+    { name: "Delete insight" },
+  );
+
 describe("insights", () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
   it("renders", () => {
     const { getByText } = render(<Insights insights={TEST_INSIGHTS} />);
     expect(getByText(TEST_INSIGHTS[0].text)).toBeTruthy();
+  });
+
+  it("deletes an insight and reports its id", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(null, { status: 204 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const onDeleted = vi.fn();
+    render(<Insights insights={TEST_INSIGHTS} onDeleted={onDeleted} />);
+
+    fireEvent.click(getDeleteButton(TEST_INSIGHTS[1]));
+
+    await waitFor(() => expect(onDeleted).toHaveBeenCalledWith(2));
+    expect(fetchMock).toHaveBeenCalledWith("/api/insights/2", {
+      method: "DELETE",
+    });
+  });
+
+  it("treats a 404 as already deleted", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response(null, { status: 404 })),
+    );
+    const onDeleted = vi.fn();
+    render(<Insights insights={TEST_INSIGHTS} onDeleted={onDeleted} />);
+
+    fireEvent.click(getDeleteButton(TEST_INSIGHTS[0]));
+
+    await waitFor(() => expect(onDeleted).toHaveBeenCalledWith(1));
+  });
+
+  it("shows an error and keeps the insight when the delete fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(null, { status: 500, statusText: "Server Error" }),
+      ),
+    );
+    const onDeleted = vi.fn();
+    render(<Insights insights={TEST_INSIGHTS} onDeleted={onDeleted} />);
+
+    fireEvent.click(getDeleteButton(TEST_INSIGHTS[0]));
+
+    expect((await screen.findByRole("alert")).textContent).toContain("500");
+    expect(onDeleted).not.toHaveBeenCalled();
   });
 });

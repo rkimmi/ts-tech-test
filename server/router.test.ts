@@ -90,3 +90,44 @@ describe("POST /insights", () => {
     });
   });
 });
+
+const deleteInsightReq = async (
+  app: ReturnType<typeof createApp>,
+  id: string,
+) => {
+  const res = await app.handle(
+    new Request(`http://localhost/insights/${id}`, { method: "DELETE" }),
+  );
+  if (!res) throw new Error("No response from app");
+  const text = await res.text();
+  return { status: res.status, body: text ? JSON.parse(text) : undefined };
+};
+
+describe("DELETE /insights/:id", () => {
+  withDB((fixture) => {
+    it("returns 400 for an invalid id", async () => {
+      const res = await deleteInsightReq(createApp(fixture), "abc");
+      expect(res.status).toBe(400);
+      expect(res.body).toEqual({ error: "Invalid insight id: abc" });
+    });
+
+    it("returns 404 when the insight does not exist", async () => {
+      const res = await deleteInsightReq(createApp(fixture), "42");
+      expect(res.status).toBe(404);
+      expect(res.body).toEqual({ error: "Insight 42 not found" });
+    });
+
+    it("returns 204 and removes the insight", async () => {
+      fixture.insights.insert([
+        { brand: 1, createdAt: new Date().toISOString(), text: "Bye" },
+      ]);
+      const [{ id }] = fixture.insights.selectAll();
+
+      const res = await deleteInsightReq(createApp(fixture), String(id));
+
+      expect(res.status).toBe(204);
+      expect(res.body).toBeUndefined();
+      expect(fixture.insights.selectAll()).toEqual([]);
+    });
+  });
+});

@@ -29,6 +29,18 @@
   gap: var(--size-3);
 }
 
+.insight-delete-button {
+  display: flex;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
 .insight-delete {
   width: var(--size-5);
   height: var(--size-5);

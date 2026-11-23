@@ -4,6 +4,7 @@ import { InsightId } from "@suittracker/lib/utils";
 import listInsights from "./operations/list-insights.ts";
 import lookupInsight from "./operations/lookup-insight.ts";
 import createInsight from "./operations/create-insight.ts";
+import deleteInsight from "./operations/delete-insight.ts";
 import { toInsightDto } from "$mappers/insight.ts";
 import type { HasDBClient } from "./shared.ts";
 
@@ -58,8 +59,20 @@ export const createRouter = ({ db }: HasDBClient): oak.Router => {
     ctx.response.body = toInsightDto(result);
   });
 
-  router.get("/insights/delete", (_ctx) => {
-    // TODO
+  router.delete("/insights/:id", (ctx) => {
+    const parsedId = InsightId.safeParse(ctx.params.id);
+    if (!parsedId.success) {
+      ctx.response.status = 400;
+      ctx.response.body = { error: `Invalid insight id: ${ctx.params.id}` };
+      return;
+    }
+    const id = parsedId.data;
+    if (!deleteInsight({ db, id })) {
+      ctx.response.status = 404;
+      ctx.response.body = { error: `Insight ${id} not found` };
+      return;
+    }
+    ctx.response.status = 204;
   });
 
   return router;

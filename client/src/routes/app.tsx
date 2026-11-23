@@ -30,7 +30,12 @@ export const App = () => {
           setInsights((prev) => [...prev, insight])}
       />
       {error && <p role="alert">Couldn't load insights: {error}</p>}
-      <Insights className={styles.insights} insights={insights} />
+      <Insights
+        className={styles.insights}
+        insights={insights}
+        onDeleted={(id) =>
+          setInsights((prev) => prev.filter((insight) => insight.id !== id))}
+      />
     </main>
   );
 };
