@@ -4,6 +4,9 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, searchForWorkspaceRoot } from "vite";
 import process from "node:process";
 
+// Run tests in UTC so date formatting is the same on every machine
+process.env.TZ = "UTC";
+
 const env = {
   clientPort: Port.parse(Deno.env.get("CLIENT_PORT")),
   servereBaseUrl: String(Deno.env.get("SERVER_BASE_URL")),

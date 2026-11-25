@@ -27,9 +27,27 @@ export type CreateInsightResponse = Insight;
 export type CreateInsightValidationErrors = z.inferFlattenedErrors<
   typeof CreateInsightRequest
 >;
-export type CreateInsightErrorResponse = {
-  error: CreateInsightValidationErrors;
-};
+export const CreateInsightErrorResponse: z.ZodObject<{
+  error: z.ZodObject<{
+    formErrors: z.ZodArray<z.ZodString>;
+    fieldErrors: z.ZodObject<{
+      brandId: z.ZodOptional<z.ZodArray<z.ZodString>>;
+      text: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    }>;
+  }>;
+}> = z.object({
+  error: z.object({
+    formErrors: z.array(z.string()),
+    fieldErrors: z.object({
+      brandId: z.array(z.string()).optional(),
+      text: z.array(z.string()).optional(),
+    }),
+  }),
+});
+
+export type CreateInsightErrorResponse = z.infer<
+  typeof CreateInsightErrorResponse
+>;
 
 export const ListInsightsResponse: z.ZodObject<{
   items: z.ZodArray<typeof Insight>;

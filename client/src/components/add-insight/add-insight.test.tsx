@@ -101,6 +101,41 @@ describe("AddInsight", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("shows a generic form error when a 400 response has no field errors", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ error: "Bad Request" }), {
+          status: 400,
+          statusText: "Bad Request",
+        }),
+      ),
+    );
+    const { onClose } = setup();
+
+    fillAndSubmit("1", "Hello");
+
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "Request failed: 400 Bad Request",
+    );
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("clears errors when the modal is closed and reopened", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    const onClose = vi.fn();
+    const { rerender } = render(<AddInsight open onClose={onClose} />);
+
+    fillAndSubmit("1", "   ");
+    expect(await screen.findByRole("alert")).toBeTruthy();
+
+    rerender(<AddInsight open={false} onClose={onClose} />);
+    rerender(<AddInsight open onClose={onClose} />);
+
+    await screen.findByRole("button", { name: "Add insight" });
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
   it("shows a form error when the request fails", async () => {
     vi.stubGlobal(
       "fetch",

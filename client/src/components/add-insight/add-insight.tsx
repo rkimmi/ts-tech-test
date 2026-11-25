@@ -27,6 +27,13 @@ export const AddInsight = ({ onCreated, ...props }: AddInsightProps) => {
   );
   const [submitting, setSubmitting] = useState(false);
 
+  const [wasOpen, setWasOpen] = useState(props.open);
+  // Reset errors on modal reopen
+  if (props.open !== wasOpen) {
+    setWasOpen(props.open);
+    if (props.open) setErrors(NO_ERRORS);
+  }
+
   const addInsight = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 

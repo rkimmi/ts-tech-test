@@ -1,5 +1,5 @@
 import {
-  type CreateInsightErrorResponse,
+  CreateInsightErrorResponse,
   type CreateInsightRequest,
   type CreateInsightResponse,
   type CreateInsightValidationErrors,
@@ -31,8 +31,10 @@ export const createInsight = async (
   });
 
   if (res.status === 400) {
-    const body: CreateInsightErrorResponse = await res.json();
-    return { ok: false, errors: body.error };
+    const body = CreateInsightErrorResponse.safeParse(
+      await res.json().catch(() => undefined),
+    );
+    if (body.success) return { ok: false, errors: body.data.error };
   }
   if (!res.ok) {
     throw new Error(`Request failed: ${res.status} ${res.statusText}`);
