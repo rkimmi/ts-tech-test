@@ -156,21 +156,10 @@ describe("GET /v1/insights", () => {
 
 describe("unversioned paths", () => {
   withDB((fixture) => {
-    it("are served by v1", async () => {
-      fixture.insights.insert([
-        { brand: 3, createdAt: new Date().toISOString(), text: "Hi" },
-      ]);
+    it("return 404", async () => {
       const app = createApp(fixture);
-
-      const get = async (path: string) => {
-        const res = await app.handle(new Request(`http://localhost${path}`));
-        if (!res) throw new Error("No response from app");
-        return { status: res.status, body: await res.json() };
-      };
-
-      const unversioned = await get("/insights");
-      expect(unversioned.status).toBe(200);
-      expect(unversioned.body).toEqual((await get("/v1/insights")).body);
+      const res = await app.handle(new Request("http://localhost/insights"));
+      expect(res?.status).toBe(404);
     });
   });
 });

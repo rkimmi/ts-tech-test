@@ -21,9 +21,6 @@ export const createRouter = (deps: HasDBClient): oak.Router => {
   const v1 = createV1Router(deps);
   router.use("/v1", v1.routes(), v1.allowedMethods());
 
-  // Point unversioned paths to v1 by default
-  router.use(v1.routes(), v1.allowedMethods());
-
   return router;
 };
 
