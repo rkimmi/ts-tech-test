@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { Trash2Icon } from "lucide-react";
 import { cx } from "../../lib/cx.ts";
 import { getBrandName } from "../../lib/consts.ts";
+import { formatDate } from "../../lib/format-date.ts";
 import { deleteInsight } from "../../services/insight.api.ts";
 import styles from "./insights.module.css";
 import type { Insight } from "@suittracker/lib/dtos";
@@ -60,7 +61,9 @@ export const Insights = (
                 <div className={styles["insight-meta"]}>
                   <span>{getBrandName(brandId)}</span>
                   <div className={styles["insight-meta-details"]}>
-                    <span>{date.toString()}</span>
+                    <time dateTime={date.toISOString()}>
+                      {formatDate(date)}
+                    </time>
                     <button
                       type="button"
                       className={styles["insight-delete-button"]}
