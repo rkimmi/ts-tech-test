@@ -5,7 +5,9 @@ import type * as insightsTable from "$tables/insights.ts";
 type Input = HasDBClient;
 
 export default (input: Input): Insight[] => {
-  const rows = input.db.sql<insightsTable.Row>`SELECT * FROM insights`;
+  const rows = input.db.sql<insightsTable.Row>`
+    SELECT * FROM insights ORDER BY createdAt DESC, id DESC
+  `;
 
   return rows.map((row) => ({
     ...row,

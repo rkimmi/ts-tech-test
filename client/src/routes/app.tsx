@@ -30,7 +30,7 @@ export const App = () => {
     <main className={styles.main}>
       <Header
         onInsightCreated={(insight) =>
-          setInsights((prev) => [...prev, insight])}
+          setInsights((prev) => [insight, ...prev])}
       />
       {error && <p role="alert">Couldn't load insights: {error}</p>}
       <Insights
