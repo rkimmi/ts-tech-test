@@ -27,6 +27,11 @@ describe("creating an insight", () => {
         );
       });
 
+      it("stores the timestamp as a UTC ISO string", () => {
+        const [row] = fixture.insights.selectAll();
+        expect(new Date(row.createdAt).toISOString()).toBe(row.createdAt);
+      });
+
       it("persists the insight", () => {
         expect(fixture.insights.selectAll()).toEqual([
           {
