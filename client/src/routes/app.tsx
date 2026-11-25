@@ -13,7 +13,7 @@ export const App = () => {
     const controller = new AbortController();
 
     listInsights({ signal: controller.signal })
-      .then(setInsights)
+      .then(({ items }) => setInsights(items))
       .catch((err) => {
         if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : String(err));

@@ -29,3 +29,11 @@ export type CreateInsightValidationErrors = z.inferFlattenedErrors<
 export type CreateInsightErrorResponse = {
   error: CreateInsightValidationErrors;
 };
+
+export const ListInsightsResponse: z.ZodObject<{
+  items: z.ZodArray<typeof Insight>;
+}> = z.object({
+  items: z.array(Insight),
+});
+
+export type ListInsightsResponse = z.infer<typeof ListInsightsResponse>;

@@ -4,10 +4,11 @@ import {
   type CreateInsightResponse,
   type CreateInsightValidationErrors,
   Insight,
+  ListInsightsResponse,
 } from "@suittracker/lib/dtos";
 import { fetchWithRetry } from "../lib/fetch-with-retry.ts";
 
-const BASE_URL = "/api/insights";
+const BASE_URL = "/api/v1/insights";
 
 export type CreateInsightResult =
   | { ok: true; insight: CreateInsightResponse }
@@ -15,9 +16,9 @@ export type CreateInsightResult =
 
 export const listInsights = async (
   { signal }: { signal?: AbortSignal } = {},
-): Promise<Insight[]> => {
+): Promise<ListInsightsResponse> => {
   const res = await fetchWithRetry(BASE_URL, { signal });
-  return res.json();
+  return ListInsightsResponse.parse(await res.json());
 };
 
 export const createInsight = async (

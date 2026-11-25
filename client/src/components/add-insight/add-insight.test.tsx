@@ -53,7 +53,7 @@ describe("AddInsight", () => {
 
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/insights",
+      "/api/v1/insights",
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ brandId: 3, text: "Hello" }),

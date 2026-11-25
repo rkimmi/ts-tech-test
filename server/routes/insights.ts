@@ -3,6 +3,7 @@ import {
   type CreateInsightErrorResponse,
   CreateInsightRequest,
   type CreateInsightResponse,
+  type ListInsightsResponse,
 } from "@suittracker/lib/dtos";
 import { InsightId } from "@suittracker/lib/utils";
 import {
@@ -19,7 +20,8 @@ export const createInsightsRouter = ({ db }: HasDBClient): oak.Router => {
 
   router.get("/", (ctx) => {
     const result = listInsights({ db });
-    ctx.response.body = result.map(toInsightDto);
+    const response: ListInsightsResponse = { items: result.map(toInsightDto) };
+    ctx.response.body = response;
     ctx.response.status = 200;
   });
 

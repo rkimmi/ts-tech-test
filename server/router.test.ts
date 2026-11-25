@@ -8,7 +8,7 @@ const postInsight = async (
   body: string,
 ) => {
   const res = await app.handle(
-    new Request("http://localhost/insights", {
+    new Request("http://localhost/v1/insights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
@@ -18,7 +18,7 @@ const postInsight = async (
   return { status: res.status, body: await res.json() };
 };
 
-describe("POST /insights", () => {
+describe("POST /v1/insights", () => {
   describe("with invalid fields", () => {
     withDB((fixture) => {
       it("returns 400 with field errors and stores nothing", async () => {
@@ -96,14 +96,14 @@ const deleteInsightReq = async (
   id: string,
 ) => {
   const res = await app.handle(
-    new Request(`http://localhost/insights/${id}`, { method: "DELETE" }),
+    new Request(`http://localhost/v1/insights/${id}`, { method: "DELETE" }),
   );
   if (!res) throw new Error("No response from app");
   const text = await res.text();
   return { status: res.status, body: text ? JSON.parse(text) : undefined };
 };
 
-describe("DELETE /insights/:id", () => {
+describe("DELETE /v1/insights/:id", () => {
   withDB((fixture) => {
     it("returns 400 for an invalid id", async () => {
       const res = await deleteInsightReq(createApp(fixture), "abc");
@@ -128,6 +128,49 @@ describe("DELETE /insights/:id", () => {
       expect(res.status).toBe(204);
       expect(res.body).toBeUndefined();
       expect(fixture.insights.selectAll()).toEqual([]);
+    });
+  });
+});
+
+describe("GET /v1/insights", () => {
+  withDB((fixture) => {
+    it("returns the insights as items within an object", async () => {
+      fixture.insights.insert([
+        { brand: 3, createdAt: new Date().toISOString(), text: "Hi" },
+      ]);
+
+      const res = await createApp(fixture).handle(
+        new Request("http://localhost/v1/insights"),
+      );
+      if (!res) throw new Error("No response from app");
+
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual({
+        items: [
+          { id: 1, brandId: 3, text: "Hi", date: expect.any(String) },
+        ],
+      });
+    });
+  });
+});
+
+describe("unversioned paths", () => {
+  withDB((fixture) => {
+    it("are served by v1", async () => {
+      fixture.insights.insert([
+        { brand: 3, createdAt: new Date().toISOString(), text: "Hi" },
+      ]);
+      const app = createApp(fixture);
+
+      const get = async (path: string) => {
+        const res = await app.handle(new Request(`http://localhost${path}`));
+        if (!res) throw new Error("No response from app");
+        return { status: res.status, body: await res.json() };
+      };
+
+      const unversioned = await get("/insights");
+      expect(unversioned.status).toBe(200);
+      expect(unversioned.body).toEqual((await get("/v1/insights")).body);
     });
   });
 });

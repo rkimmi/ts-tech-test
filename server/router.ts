@@ -3,6 +3,13 @@ import { createInsightsRouter } from "./routes/insights.ts";
 import type { HasDBClient } from "./shared.ts";
 import { errorHandler, type Logger, requestLogger } from "./middleware.ts";
 
+const createV1Router = (deps: HasDBClient): oak.Router => {
+  const router = new oak.Router();
+  const insightsRouter = createInsightsRouter(deps);
+  router.use(insightsRouter.routes(), insightsRouter.allowedMethods());
+  return router;
+};
+
 export const createRouter = (deps: HasDBClient): oak.Router => {
   const router = new oak.Router();
 
@@ -11,8 +18,11 @@ export const createRouter = (deps: HasDBClient): oak.Router => {
     ctx.response.status = 200;
   });
 
-  const insightsRouter = createInsightsRouter(deps);
-  router.use(insightsRouter.routes(), insightsRouter.allowedMethods());
+  const v1 = createV1Router(deps);
+  router.use("/v1", v1.routes(), v1.allowedMethods());
+
+  // Point unversioned paths to v1 by default
+  router.use(v1.routes(), v1.allowedMethods());
 
   return router;
 };

@@ -65,7 +65,7 @@ describe("insights", () => {
     fireEvent.click(getDeleteButton(TEST_INSIGHTS[1]));
 
     await waitFor(() => expect(onDeleted).toHaveBeenCalledWith(2));
-    expect(fetchMock).toHaveBeenCalledWith("/api/insights/2", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/v1/insights/2", {
       method: "DELETE",
     });
   });

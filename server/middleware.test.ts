@@ -22,10 +22,10 @@ describe("request logging", () => {
       const { logger, calls } = spyLogger();
       const app = createApp({ ...fixture, logger });
 
-      await app.handle(new Request("http://localhost/insights/42"));
+      await app.handle(new Request("http://localhost/v1/insights/42"));
 
       expect(calls.info).toEqual([
-        [expect.stringMatching(/^GET \/insights\/42 404 \d+ms$/)],
+        [expect.stringMatching(/^GET \/v1\/insights\/42 404 \d+ms$/)],
       ]);
       expect(calls.error).toEqual([]);
     });
@@ -41,14 +41,14 @@ describe("unhandled errors", () => {
     const { logger, calls } = spyLogger();
     const app = createApp({ db, logger });
 
-    const res = await app.handle(new Request("http://localhost/insights"));
+    const res = await app.handle(new Request("http://localhost/v1/insights"));
 
     expect(res?.status).toBe(500);
     expect(await res?.json()).toEqual({ error: "Internal Server Error" });
     expect(calls.error).toHaveLength(1);
-    expect(calls.error[0][0]).toBe("Unhandled error on GET /insights");
+    expect(calls.error[0][0]).toBe("Unhandled error on GET /v1/insights");
     expect(calls.info).toEqual([
-      [expect.stringMatching(/^GET \/insights 500 \d+ms$/)],
+      [expect.stringMatching(/^GET \/v1\/insights 500 \d+ms$/)],
     ]);
   });
 });
