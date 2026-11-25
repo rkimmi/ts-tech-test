@@ -8,6 +8,7 @@ import type { Insight } from "@suittracker/lib/dtos";
 export const App = () => {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -17,6 +18,9 @@ export const App = () => {
       .catch((err) => {
         if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : String(err));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
       });
 
     return () => controller.abort();
@@ -32,6 +36,7 @@ export const App = () => {
       <Insights
         className={styles.insights}
         insights={insights}
+        isLoading={isLoading}
         onDeleted={(id) =>
           setInsights((prev) => prev.filter((insight) => insight.id !== id))}
       />

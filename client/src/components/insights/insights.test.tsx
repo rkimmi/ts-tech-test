@@ -37,6 +37,19 @@ describe("insights", () => {
     expect(getByText(TEST_INSIGHTS[0].text)).toBeTruthy();
   });
 
+  it("shows a loading message instead of the list while loading", () => {
+    render(<Insights insights={TEST_INSIGHTS} isLoading />);
+    expect(screen.getByRole("status").textContent).toBe("Loading insights...");
+    expect(screen.queryByRole("article")).toBeNull();
+    expect(screen.queryByText("We have no insight!")).toBeNull();
+  });
+
+  it("shows the empty message once loaded with no insights", () => {
+    render(<Insights insights={[]} isLoading={false} />);
+    expect(screen.getByText("We have no insight!")).toBeTruthy();
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
   it("shows the brand name for each insight", () => {
     render(<Insights insights={TEST_INSIGHTS} />);
     const article = screen.getByRole("article", {

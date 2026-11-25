@@ -8,11 +8,14 @@ import type { Insight } from "@suittracker/lib/dtos";
 
 type InsightsProps = {
   insights: Insight[];
+  isLoading?: boolean;
   className?: string;
   onDeleted?(id: Insight["id"]): void;
 };
 
-export const Insights = ({ insights, className, onDeleted }: InsightsProps) => {
+export const Insights = (
+  { insights, isLoading = false, className, onDeleted }: InsightsProps,
+) => {
   const [deleting, setDeleting] = useState<Set<Insight["id"]>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const idPrefix = useId();
@@ -43,8 +46,10 @@ export const Insights = ({ insights, className, onDeleted }: InsightsProps) => {
     <div className={cx(className)}>
       <h1 className={styles.heading}>Insights</h1>
       {error && <p role="alert">Couldn't delete insight: {error}</p>}
-      <div className={styles.list}>
-        {insights?.length
+      <div className={styles.list} aria-busy={isLoading}>
+        {isLoading
+          ? <p role="status">Loading insights...</p>
+          : insights?.length
           ? (
             insights.map(({ id, text, date, brandId }) => (
               <article
